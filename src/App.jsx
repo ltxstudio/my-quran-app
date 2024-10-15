@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import SurahList from './components/SurahList';
 import SurahPage from './pages/SurahPage';
 import 'react-h5-audio-player/lib/styles.css';
