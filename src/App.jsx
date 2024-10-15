@@ -13,36 +13,47 @@ const App = () => {
   const [translations, setTranslations] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [language, setLanguage] = useState('en');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchSurahData = async () => {
+      setLoading(true);
       try {
-        const response = await axios.get('https://api.alquran.cloud/v1/surah');
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/surah`);
         setSurah(response.data.data);
       } catch (error) {
-        console.error('Error fetching Surah data:', error);
+        setError('Error fetching Surah data');
+      } finally {
+        setLoading(false);
       }
     };
     fetchSurahData();
   }, []);
 
   const fetchAyahs = async (surahNumber) => {
+    setLoading(true);
     try {
-      const quranResponse = await axios.get(`https://api.alquran.cloud/v1/surah/${surahNumber}`);
-      const translationResponse = await axios.get(`https://api.alquran.cloud/v1/surah/${surahNumber}/editions/quran-simple,en.sahih,bn.bengali`);
+      const quranResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/surah/${surahNumber}`);
+      const translationResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/surah/${surahNumber}/editions/quran-simple,en.sahih,bn.bengali`);
       setAyahs(quranResponse.data.data.ayahs);
       setTranslations(translationResponse.data.data);
     } catch (error) {
-      console.error('Error fetching Ayahs:', error);
+      setError('Error fetching Ayahs');
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchAudio = async (surahNumber) => {
+    setLoading(true);
     try {
-      const response = await axios.get(`https://api.alquran.cloud/v1/surah/${surahNumber}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/surah/${surahNumber}`);
       setAudioUrl(response.data.data.audio);
     } catch (error) {
-      console.error('Error fetching audio:', error);
+      setError('Error fetching audio');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -71,8 +82,10 @@ const App = () => {
         <option value="bn">Bengali</option>
         {/* Add more languages here */}
       </select>
+      {loading && <p>Loading...</p>}
+      {error && <p className="text-red-500">{error}</p>}
       <SurahList surah={surah} onSurahSelect={handleSurahSelection} searchQuery={searchQuery} />
-      {selectedSurah && (
+      {selectedSurah && !loading && (
         <div className="mt-4">
           <h2 className="text-xl font-semibold">{selectedSurah.name} - {selectedSurah.englishName}</h2>
           <AudioPlayer
