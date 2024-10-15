@@ -38,7 +38,7 @@ const App = () => {
           </Helmet>
           <Switch>
             <Route exact path="/">
-              <h1 className="text-2xl font-bold mb-4 text-center">Al-Quran with Multiple Translations</h1>
+              <h1 className="text-2xl font-bold mb-4 text-center">Al-Quran with English Translation</h1>
               <input
                 type="text"
                 placeholder="Search Surah"
