@@ -10,21 +10,9 @@ const SurahPage = () => {
   const [surah, setSurah] = useState({});
   const [audioUrl, setAudioUrl] = useState('');
   const [ayahs, setAyahs] = useState([]);
-  const [transliteration, setTransliteration] = useState([]);
   const [translations, setTranslations] = useState([]);
-  const [language, setLanguage] = useState('en');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  const languages = {
-    en: "Sahih International",
-    bn: "Muhiuddin Khan",
-    ur: "Urdu",
-    fr: "French",
-    de: "German",
-    id: "Indonesian",
-    // Add more languages as needed
-  };
 
   useEffect(() => {
     const fetchSurahData = async () => {
@@ -43,9 +31,9 @@ const SurahPage = () => {
       setLoading(true);
       try {
         const quranResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/surah/${number}`);
-        const translationResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/surah/${number}/editions/quran-simple,en.sahih,bn.bengali,ur.jalandhary,fr.hamidullah,de.aburida,id.indonesian`);
+        const translationResponse = await axios.get(`/quran.json`);
         setAyahs(quranResponse.data.data.ayahs);
-        setTranslations(translationResponse.data.data);
+        setTranslations(translationResponse.data.surahs.find(s => s.number === parseInt(number)).ayahs);
       } catch (error) {
         setError('Error fetching Ayahs');
       } finally {
@@ -70,10 +58,6 @@ const SurahPage = () => {
     fetchAudio();
   }, [number]);
 
-  const handleLanguageChange = (e) => {
-    setLanguage(e.target.value);
-  };
-
   return (
     <div className="container mx-auto p-4">
       {loading && (
@@ -85,11 +69,6 @@ const SurahPage = () => {
       {!loading && (
         <>
           <h2 className="text-xl font-semibold text-center">{surah.name} - {surah.englishName}</h2>
-          <select onChange={handleLanguageChange} value={language} className="border p-2 mb-4">
-            {Object.entries(languages).map(([key, value]) => (
-              <option key={key} value={key}>{value}</option>
-            ))}
-          </select>
           <AudioPlayer
             src={audioUrl}
             className="mt-4"
@@ -98,8 +77,7 @@ const SurahPage = () => {
             {ayahs.map((ayah, index) => (
               <div key={index} className="mb-4">
                 <p className="text-lg text-gray-700">{ayah.text}</p>
-                <p className="text-sm text-gray-500">{transliteration[index]?.text}</p>
-                <p className="text-sm text-gray-500">{translations.find(t => t.language === language)?.ayahs[index]?.text}</p>
+                <p className="text-sm text-gray-500">{translations[index]?.text}</p>
               </div>
             ))}
           </div>
